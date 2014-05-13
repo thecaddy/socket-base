@@ -1,0 +1,14 @@
+{
+  "name": "socket-base",
+  "version": "0.0.1",
+  "description": "Socket Server built to update/pull from Redis based on need",
+  "author": "Joel Trost",
+  "license": "",
+  "dependencies": {
+    "gulp": "~3.6.0",
+    "gulp-util": "~2.2.14",
+    "winston": "~0.7.3",
+    "socket.io": "*",
+    "redis": "*"
+  }
+}
