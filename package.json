@@ -9,6 +9,8 @@
     "gulp-util": "~2.2.14",
     "winston": "~0.7.3",
     "socket.io": "*",
-    "redis": "*"
+    "redis": "*",
+    "lodash": "^2.4.1",
+    "lodash-contrib": "^241.4.4"
   }
 }
