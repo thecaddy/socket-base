@@ -12,5 +12,8 @@
     "redis": "*",
     "lodash": "^2.4.1",
     "lodash-contrib": "^241.4.4"
+  },
+  "devDependencies": {
+    "commander": "^2.2.0"
   }
 }

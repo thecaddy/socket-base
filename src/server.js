@@ -3,41 +3,20 @@ var fs = require('fs'),
     sys = require('sys'),
     http = require('http'),
     mime = require('mime'),
-    redis = require('redis');
+    socketio = require('socket.io'),
+    redis = require('redis'),
+    io;
 
 
-function start(port){
+function start(port, api, redisIP){
   var ActiveQueries = {};
-  var db = redis.createClient(6379, '127.0.0.1');
-  var subscriber = redis.createClient(6379, '127.0.0.1');
+  var db = redis.createClient(6379, '172.30.51.102');
+  var subscriber = redis.createClient(6379, '172.30.51.102');
 
   db.set('ActiveQueries', ActiveQueries);
+  io = socketio.listen(port);
 
-  //console.log('setting foo');
-  db.set("foo", "this is crazy");
-
-  // This will return a JavaScript String
-  db.get("foo", function (err, reply) {
-      console.log('made it here');
-      console.log(reply.toString()); // Will print `OK`
-  });
-
-  // This will return a Buffer since original key is specified as a Buffer
-  db.get(new Buffer("foo"), function (err, reply) {
-      console.log(reply.toString()); // Will print `<Buffer 4f 4b>`
-  });
-  //db.end();
-
-
-  var io = require('socket.io').listen(8000);
-
-  //io.set('heartbeats', false);
-
-  var data = { set: 'one'};
-  // setInterval(function() {
-  //     console.log('trying to publish');
-  //     db.publish('foo', 'Date.now');
-  // } , 5000);
+  //io.set('heartbeats', false)
 
   io.sockets.on('connection', function (socket) {
       socket.emit('news', { hello: 'world' });
@@ -70,15 +49,9 @@ function start(port){
                   delete ActiveQueries[socket.ActiveQuery];
               }
           }
-          
-
-          
-          //ActiveQueries.pop(socket.ActiveQuery);
       });
   });
   subscriber.on('message', function(channel, message){
-      //console.log('foo changed: ', channel);
-      //console.log(ActiveQueries[channel]);
       io.sockets.emit(channel, message);
   });
 
@@ -89,15 +62,6 @@ function start(port){
     path: '',//propertyc/64',
     method: 'GET'
   };
-
-  http.get("http://www.google.com/index.html", function(res) {
-    console.log('STATUS: ' + res.statusCode);
-    //console.log('HEADERS: ' + JSON.stringify(res.headers));
-    res.setEncoding('utf8');
-    res.on('data', function (chunk) {
-      //console.log('BODY: ' + chunk);
-    });
-  });
 
   //set up polling
   setInterval(function(){
@@ -124,7 +88,12 @@ function start(port){
   }, 5000);
 }
 
+function stop(){
+  console.log('io', io);
+}
+
 exports.start = start;
+exports.stop = stop;
 
 
 
