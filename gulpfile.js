@@ -27,6 +27,8 @@ if(process.program.dev){
 process.title = 'socket-base[' + process.env.NODE_ENV + ']';
 
 
+
+
 var path = require('path'),
     gulp = require('gulp'),
     gutil = require('gulp-util'),
@@ -35,6 +37,8 @@ var path = require('path'),
     port = config.get('env.port'),
     logger = require('./log'),
     exc = require('./exceptionhandler'),
+    api = config.get('env.prowlapi'),
+    redisIP = config.get('env.redisIP'),
     app, api, redisIP, reload;
 
 
@@ -60,6 +64,7 @@ gulp.task('lint', function() {
 gulp.task('server', function() {
   if(reload) {
   }
+  console.log('api: ', api);
   app = server.start(port, api, redisIP);
   reload = true;
   return;
@@ -90,20 +95,20 @@ gulp.task('default', ['build'] ,function() {
 });
 
 // This is a workaround until gulp can run node with --harmony
-switch(process.env.NODE_ENV){
-  case "dev":
-    api = config.get('env.prowlapi');
-    redisIP = config.get('env.redisIP');
-    gulp.run('default');
-    break;
-  case "prod":
-    api = config.get('env.prowlapi');
-    redisIP = config.get('env.redisIP');
-    gulp.run('default');
-    break;
-  case "stage":
-    api = config.get('env.prowlapi');
-    redisIP = config.get('env.redisIP');
-    gulp.run('default');
-    break;
-}
+// switch(process.env.NODE_ENV){
+//   case "dev":
+//     api = config.get('env.prowlapi');
+//     redisIP = config.get('env.redisIP');
+//     gulp.run('default');
+//     break;
+//   case "prod":
+//     api = config.get('env.prowlapi');
+//     redisIP = config.get('env.redisIP');
+//     gulp.run('default');
+//     break;
+//   case "stage":
+//     api = config.get('env.prowlapi');
+//     redisIP = config.get('env.redisIP');
+//     gulp.run('default');
+//     break;
+// }

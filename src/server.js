@@ -1,10 +1,11 @@
 
 var fs = require('fs'),
     sys = require('sys'),
-    http = require('http'),
     mime = require('mime'),
     socketio = require('socket.io'),
     redis = require('redis'),
+    request = require('request'),
+    colors = require('colors'),
     io;
 
 
@@ -19,7 +20,6 @@ function start(port, api, redisIP){
   //io.set('heartbeats', false)
 
   io.sockets.on('connection', function (socket) {
-      socket.emit('news', { hello: 'world' });
       socket.on('register', function (data) {
           console.log('register: ', data);
 
@@ -55,45 +55,51 @@ function start(port, api, redisIP){
       io.sockets.emit(channel, message);
   });
 
-
-  var options = {
-    hostname: 'www.google.com',
-    port: 8282,
-    path: '',//propertyc/64',
-    method: 'GET'
-  };
-
   //set up polling
   setInterval(function(){
-      for(var key in ActiveQueries){
-          http.get("http://www.google.com/index.html", function(res) {
-            console.log('STATUS: ' + res.statusCode);
-            //console.log('HEADERS: ' + JSON.stringify(res.headers));
-            res.setEncoding('utf8');
-            res.on('data', function (chunk) {
-              //db.publish(key, 'chunk');
-            });
-          });
-          //console.log('val:',db.get(key));
-          db.get(key, function (err, reply) {
-              console.log('reply:', reply);
-              if(reply != (new Date()).getMinutes()){
-                  db.publish(key, (new Date()).getMinutes());
-                  db.set(key, (new Date()).getMinutes());
-              }
-          });
-          
-          //db.publish(key, ('pinging server: ', new Date()));
+    for(var key in ActiveQueries){
+      var options = {
+        url: api + ActiveQueries[key].query.url,
+        method: 'POST',
+        qs: ActiveQueries[key].query.query,
+        encoding: 'utf8',
+        headers:{
+          'User-Agent': 'request'
+        }
       }
+      var code;
+      var t = Date.now();
+      console.log('-->'.grey + ' POST '.bold.blue + ActiveQueries[key].query.url.grey);
+      request(options, function(err, res, body) {         
+        if(res.statusCode ==200)
+          code = res.statusCode.toString().green;
+        else
+          code = res.statusCode.toString().red;
+
+        var el = Date.now() - t;
+
+        console.log('<--'.grey + ' POST '.bold.blue + ActiveQueries[key].query.url.grey 
+          + ' ' + code + ' ' + el.toString().grey + 'ms -'.grey); 
+        db.get(key, function (err, reply) {
+          if(reply != body){
+              db.publish(key, body);
+              db.set(key, body);
+          }
+        });
+      });
+
+      //console.log('val:',db.get(key));
+      // db.get(key, function (err, reply) {
+      //     if(reply != (new Date()).getMinutes()){
+      //         db.publish(key, (new Date()).getMinutes());
+      //         db.set(key, (new Date()).getMinutes());
+      //     }
+      // });
+    }
   }, 5000);
 }
 
-function stop(){
-  console.log('io', io);
-}
-
 exports.start = start;
-exports.stop = stop;
 
 
 

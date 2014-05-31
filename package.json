@@ -14,6 +14,10 @@
     "lodash-contrib": "^241.4.4"
   },
   "devDependencies": {
-    "commander": "^2.2.0"
+    "commander": "^2.2.0",
+    "request": "^2.36.0",
+    "colors": "^0.6.2",
+    "install": "^0.1.7",
+    "npm": "^1.4.13"
   }
 }
